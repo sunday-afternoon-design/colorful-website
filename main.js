@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import model from './public/1.glb?url'
+
 
 const canvas = document.querySelector('canvas.webgl')
 
@@ -25,7 +27,7 @@ for(let i =0;i<10;i++){
 const logogroup = new THREE.Group();
 
 loader.load(
-	'./assets/1.glb',
+	model,
     function (gltf) {
         gltf.scene.traverse(function (child) {
             if (child.isMesh) {
