@@ -388,6 +388,9 @@ if (window.DeviceOrientationEvent) {
     //   var alpha = event.alpha;
       var beta = event.beta;
       var gamma = event.gamma;
+      cpx.innerHTML = "x: " + beta
+      cpy.innerHTML = "y: " + gamma
+    //   cpz.innerHTML = "z: " + camerapos.z.toString()
       camera.position.x += (beta - camera.position.x) * .07 + 0.35;
       camera.position.y += (gamma - camera.position.y) * .07 + 0.35;
     }, false);
