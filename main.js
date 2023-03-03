@@ -10,6 +10,18 @@ import model from './public/1.glb?url'
 /* -------------------------------------------------------------------------- */
 /*                                 Basic Setup                                */
 /* -------------------------------------------------------------------------- */
+      /* Storing user's device details in a variable*/
+      let details = navigator.userAgent;
+      
+      /* Creating a regular expression
+      containing some mobile devices keywords
+      to search it in details string*/
+      let regexp = /android|iphone|kindle|ipad/i;
+      
+      /* Using test() method to search regexp in details
+      it returns boolean value*/
+      let isMobileDevice = regexp.test(details);
+
 let p = [25, 50, 60, 85]
 let mouseX = 0,
     mouseY = 0;
@@ -339,10 +351,47 @@ const clock = new THREE.Clock()
 //     }
 // });
 
-camera.position.set(4.66, -0.26, 5.88)
-camera.lookAt(-2, 0, 0);
-camera.setFocalLength(25)
-camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 10);
+if(isMobileDevice){
+    document.getElementById("cb").style.top = '2vh'
+    document.getElementById("cb").style.left = '66vw'
+
+    document.getElementById("titles").style.top = '5vh'
+    document.getElementById("titles").style.width = '50vw'
+
+    document.getElementById("mw").style.fontSize = '7vh'
+    document.getElementById("mw").style.lineHeight = '6vh'
+    document.getElementById("ed").style.fontSize = '2.8vh'
+    document.getElementById("ed").style.lineHeight = '3vh'
+    document.getElementById("may12").style.fontSize = '7vh'
+    document.getElementById("may12").style.lineHeight = '6.5vh' 
+    document.getElementById("th").style.fontSize = '3vh'
+    document.getElementById("th").style.top = '-3vh'
+
+    document.getElementById("b").style.zIndex = '-5'
+    document.getElementById("b1").style.zIndex = '5'
+    document.getElementById("b2").style.zIndex = '5'
+
+    camera.position.set(4.66, .26, 5.88)
+    camera.lookAt(-2, 0, 0);
+    camera.setFocalLength(35)
+    camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 3.5); 
+
+}else{
+    camera.position.set(4.66, -0.26, 5.88)
+    camera.lookAt(-2, 0, 0);
+    camera.setFocalLength(25)
+    camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 10);    
+}
+
+if (window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', function(event) {
+    //   var alpha = event.alpha;
+      var beta = event.beta;
+      var gamma = event.gamma;
+      camera.position.x += (beta - camera.position.x) * .07 + 0.35;
+      camera.position.y += (gamma - camera.position.y) * .07 + 0.35;
+    }, false);
+  }
 /* -------------------------------------------------------------------------- */
 /*                         tick and auxiliary functions                       */
 /* -------------------------------------------------------------------------- */
@@ -483,3 +532,6 @@ function map(value, min1, max1, min2, max2) {
     const valueScaled = (value - min1) / range1;
     return min2 + (valueScaled * range2);
 }
+
+
+
