@@ -22,7 +22,7 @@ body {
 }
 
 #back {
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 100%;
     height: 100%;
@@ -31,7 +31,7 @@ body {
 }
 
 #cb {
-    position: absolute;
+    position: fixed;
     margin: 0;
     padding: 0;
     top: 4vh;
@@ -87,7 +87,7 @@ body {
 }
 
 .mobilebutton {
-    position: absolute;
+    position: fixed;
     left: 4.5vw;
     width:30vw;
     z-index: -5;
