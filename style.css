@@ -62,7 +62,6 @@ body {
     font-size: 5vh;
     color: #55FF26;
 }
-
 #may12 {
     line-height: 10vh;
     font-size: 12.5vh;
@@ -99,10 +98,4 @@ body {
 
 #b1 {
     top: 29.5vh;
-}
-
-
-.camerapos{
-    font-size:medium;
-    color: white;
 }

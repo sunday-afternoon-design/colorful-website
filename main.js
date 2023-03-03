@@ -388,6 +388,7 @@ if (window.DeviceOrientationEvent) {
     //   var alpha = event.alpha;
       var beta = event.beta;
       var gamma = event.gamma;
+
       cpx.innerHTML = "x: " + beta
       cpy.innerHTML = "y: " + gamma
     //   cpz.innerHTML = "z: " + camerapos.z.toString()
