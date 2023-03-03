@@ -2,59 +2,141 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
-import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
-import Stats from 'three/addons/libs/stats.module.js';
-import model from './public/1.glb?url'
-// import 
-// import draco from 'draco3d';
-// import {setLoaderOptions} from '@loaders.gl/core';
-// setLoaderOptions({
-//   modules: {
-//     'draco_wasm_wrapper.js': require('@loaders.gl/draco/libs/draco_wasm_wrapper.js'),
-//     'draco_decoder.wasm': require('@loaders.gl/draco/libs/draco_decoder.wasm') // NOTE: importing `wasm` requires bundler config
-//   }
-// });
-// import * as dracoloader from 'draco3d/draco_decoder.wasm'
-// import  "./public/draco/draco_decoder.wasm?raw"
-// import  "./public/draco/draco_wasm_wrapper.js?raw"
-// import * as f from "./public/draco/draco_decoder.wasm?raw"
-// import * as a from "./public/draco/draco_wasm_wrapper.js?raw"
 
-/* -------------------------------------------------------------------------- */
-/*                                 Basic Setup                                */
-/* -------------------------------------------------------------------------- */
-let p = [25, 50, 60, 85]
-let mouseX = 0,
-    mouseY = 0;
-let mouseOX = 0,
-    mouseOY = 0;
-let targetX = 0;
-let targetY = 0;
-let windowHalfX = window.innerWidth / 2;
-let windowHalfY = window.innerHeight / 2;
-const stats = Stats()
-document.body.appendChild(stats.dom)
+import model from './public/1.glb?url'
+
+
+const canvas = document.querySelector('canvas.webgl')
+
+const scene = new THREE.Scene()
+// scene.background = new THREE.Color(0xffffff); // Set the background color to white
+
+const loader = new GLTFLoader();
+
+// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath( './draco/' );
+loader.setDRACOLoader( dracoLoader );
+const col = [0xD3CF2F,0xD3CD2E,0xD1B72C,0xC85F27,0xC34A27,0xC98C33,0x6D532B,0x1F3D74,0x0E2C66,0x035B3E]
+const material=[]
+for(let i =0;i<10;i++){
+    material[i] = new THREE.MeshStandardMaterial({
+    color: col[i], // Yellow color
+    roughness: 0.5,
+});}
+
+const logogroup = new THREE.Group();
+
+loader.load(
+	model,
+    function (gltf) {
+        gltf.scene.traverse(function (child) {
+            if (child.isMesh) {
+                for (let i = 0; i < 10; i++) {
+                    let scaleindex = 1 +i*0.04
+                    let positionindex = 1 - i*0.2
+                    child.material = material[i];
+                    child.castShadow =true
+                    child.receiveShadow =true
+                    const clone = child.clone();
+                    clone.scale.set(scaleindex,scaleindex,scaleindex)
+                    clone.position.set(1,1,positionindex)
+                    logogroup.add(clone)
+                    scene.add(clone);
+                }
+                for (let i = 0; i < 10; i++) {
+                    let scaleindex = 1 +i*0.04
+                    let positionindex = 1 + i*.13
+                    let positionindexZ = 1 - i*.13
+                    child.material = material[i];
+                    child.castShadow =true
+                    child.receiveShadow =true
+                    const clone = child.clone();
+                    clone.scale.set(scaleindex,scaleindex,scaleindex)
+                    clone.position.set(1,positionindex+.5,positionindexZ)
+                    clone.rotation.set(Math.PI / 4,0,0);
+                    logogroup.add(clone)
+                    scene.add(clone);
+                }
+                for (let i = 0; i < 10; i++) {
+                    let scaleindex = 1 +i*0.04
+                    let positionindex = 1 - i*.13
+                    let positionindexZ = 1 - i*.13
+                    child.material = material[i];
+                    child.castShadow =true
+                    child.receiveShadow =true
+                    const clone = child.clone();
+                    clone.scale.set(scaleindex,scaleindex,scaleindex)
+                    clone.position.set(1,positionindex-.5,positionindexZ)
+                    clone.rotation.set(-Math.PI / 4,0,0);
+                    logogroup.add(clone)
+                    scene.add(clone);
+                }
+            }
+        });
+    }
+	);
+
+let sG = new THREE.SphereBufferGeometry(.2)
+let s = new THREE.Mesh(sG,material)
+s.castShadow = true
+// scene.add(s)
+
+let s2G = new THREE.SphereBufferGeometry(-0.4)
+let s2 = new THREE.Mesh(s2G,material)
+s2.position.set(0,0),1
+s2.receiveShadow = true
+// scene.add(s2)
+
+
+
+const light1 = new THREE.DirectionalLight(0xffffff, .7); // Color, Intensity
+const light2 = new THREE.DirectionalLight(0xffffff, .4); // Color, Intensity
+const light3 = new THREE.DirectionalLight(0xffffff, .4); // Color, Intensity
+light1.position.set(0, 0.1, 2); // x, y, z
+light2.position.set(0, 0.5, 1); // x, y, z
+light3.position.set(0, -0.5, 1); // x, y, z
+light1.castShadow = true; // Enable shadow casting
+// light2.castShadow = true; // Enable shadow casting
+// light3.castShadow = true; // Enable shadow casting
+light1.shadow.mapSize.width = 1024;
+light1.shadow.mapSize.height = 1024;
+light2.shadow.mapSize.width = 1024;
+light2.shadow.mapSize.height = 1024;
+light3.shadow.mapSize.width = 1024;
+light3.shadow.mapSize.height = 1024;
+scene.add(light1);
+// scene.add(light2);
+// scene.add(light3);
+const lighth = new THREE.HemisphereLight( 0xffffff, 0.5 ); 
+scene.add(lighth);
 
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
 
-const canvas = document.querySelector('canvas.webgl')
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
 
-const scene = new THREE.Scene()
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
 
-scene.fog = new THREE.Fog(0x000000, 8, 18);
-
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000)
-
-let a = [2.1, -1.1, 4.3]
-let b = [-0.3, 1.5, 3.2]
-let c = [-2.3, 0.9, 1.8]
-let cpx = document.getElementById('x')
-let cpy = document.getElementById('y')
-let cpz = document.getElementById('z')
-let camerapos = camera.position
+camera.position.x = 3.1
+camera.position.y = -.1
+camera.position.z = 3.3
+// 3.1,-0.1,3.3
+// -0.3,1.5,3.2
+// -2.3,0.9,1.8
 
 scene.add(camera)
 
@@ -273,301 +355,88 @@ loader.load(
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     antialias: true,
-    alpha: true
+
+    alpha:true
+
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-// const controls = new OrbitControls(camera, renderer.domElement);
-// controls.enabled = false
-// controls.enableZoom = false
+// renderer.setClearColor(0x000000, 10);
+// renderer.physicallyCorrectLights = true;
+
+const controls = new OrbitControls( camera, renderer.domElement );
 
 const clock = new THREE.Clock()
 
+let cpx = document.getElementById('x')
+let cpy = document.getElementById('y')
+let cpz = document.getElementById('z')
+let camerapos = camera.position
 
-/* -------------------------------------------------------------------------- */
-/*                               scroll function                              */
-/* -------------------------------------------------------------------------- */
-// let scrollPercent = 0;
-// let scroll = document.getElementById('scroll')
-// document.body.onscroll = () => {
-//         scrollPercent =
-//             ((document.documentElement.scrollTop || document.body.scrollTop) /
-//                 ((document.documentElement.scrollHeight ||
-//                         document.body.scrollHeight) -
-//                     document.documentElement.clientHeight)) *
-//             100;
-//         scroll.innerHTML = "scroll progress: " + scrollPercent.toFixed(2)
-//     }
-
-//     /* ------------------------------- scroll down ------------------------------ */
-// const animationScripts = [];
-// animationScripts.push({
-//     start: 0,
-//     end: p[0],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.set(a[0], a[1], a[2])
-
-//     }
-// });
-// animationScripts.push({
-//     start: 0,
-//     end: 110,
-//     func: function() {
-//         camera.lookAt(10, 0, 0)
-//         camera.position.x += (mouseX / 10000 - camera.position.x) * .05;
-//         camera.position.y += (-mouseY / 10000 - camera.position.y) * .05;
-//     }
-// });
-
-// animationScripts.push({
-//     start: p[0],
-//     end: p[1],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x = lerp(camera.position.x, b[0], scalePercent(p[0], p[1]));
-//         camera.position.y = lerp(camera.position.y, b[1], scalePercent(p[0], p[1]));
-//         camera.position.z = lerp(camera.position.z, b[2], scalePercent(p[0], p[1]));
-//     }
-// });
-// animationScripts.push({
-//     start: p[1],
-//     end: p[2],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.set(b[0], b[1], b[2])
-//     }
-// });
-// // scalePercent(30, 40)
-// animationScripts.push({
-//     start: p[2],
-//     end: p[3],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x = lerp(camera.position.x, c[0], scalePercent(p[2], p[3]));
-//         camera.position.y = lerp(camera.position.y, c[1], scalePercent(p[2], p[3]));
-//         camera.position.z = lerp(camera.position.z, c[2], scalePercent(p[2], p[3]));
-//     }
-// });
-// animationScripts.push({
-//     start: p[3],
-//     end: 100,
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.set(c[0], c[1], c[2])
-//     }
-// });
-// /* -------------------------------- scroll up ------------------------------- */
-// const animationScriptsup = [];
-// animationScriptsup.push({
-//     start: 0,
-//     end: 110,
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x += (mouseX / 10000 - camera.position.x) * .05;
-//         camera.position.y += (-mouseY / 10000 - camera.position.y) * .05;
-//     }
-// });
-// animationScriptsup.push({
-//     start: p[0],
-//     end: p[1],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x = lerp(a[0], camera.position.x, scalePercent(p[0], p[1]));
-//         camera.position.y = lerp(a[1], camera.position.y, scalePercent(p[0], p[1]));
-//         camera.position.z = lerp(a[2], camera.position.z, scalePercent(p[0], p[1]));
-//     }
-// });
-
-// animationScriptsup.push({
-//     start: 0,
-//     end: 110,
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x += (mouseX / 10000 - camera.position.x) * .05;
-//         camera.position.y += (-mouseY / 10000 - camera.position.y) * .05;
-//     }
-// });
-
-// animationScriptsup.push({
-//     start: p[2],
-//     end: p[3],
-//     func: function() {
-//         camera.lookAt(0, 0, 0)
-//         camera.position.x = lerp(b[0], camera.position.x, scalePercent(p[2], p[3]));
-//         camera.position.y = lerp(b[1], camera.position.y, scalePercent(p[2], p[3]));
-//         camera.position.z = lerp(b[2], camera.position.z, scalePercent(p[2], p[3]));
-//     }
-// });
-
-// camera.position.set(2, 0, 5.2)
-// camera.lookAt(-1, 0, 0);
-// camera.fov = 60;
-// camera.far = 500;
-
-// camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / 10);
-camera.position.set(4.66, -0.26, 5.88)
-
-camera.lookAt(-2, 0, 0);
-// camera.fov = 60;
-// camera.far = 500;
-camera.setFocalLength(25)
-    // camera.setFocalLength(3000)
-let angles = 10
-
-camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / angles);
-/* -------------------------------------------------------------------------- */
-/*                         tick and auxiliary functions                       */
-/* -------------------------------------------------------------------------- */
+let scroll = document.getElementById('scroll')
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
-    stats.update()
 
+    // console.log(camerapos)
 
-    camera.position.x += (-mouseX / 8500 - camera.position.x) * .07 + 0.35;
-    camera.position.y += (mouseY / 8500 - camera.position.y) * .1;
-
-    angles = mouseX / 212
-    angles = map(angles, -10, 10, -5, 5)
-    console.log(angles)
-        // camera.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI / (10 + angles));
-        // console.log(camera)
-        // isScrollingDown().then(function(isScrollingDown) {
-        //     if (isScrollingDown) {
-        //         ScrollDownAnimations()
-        //         // console.log("down")
-        //     }  else if (isScrollingDown === false) {
-        //         // console.log('Scrolling up by at least 50 pixels');
-        //         ScrollUpAnimations()
-        //         // ScrollDownAnimations()
-        //       } else {
-        //         // console.log('Not scrolling');
-        //         // NoScrollAnimations()
-        //         ScrollDownAnimations()
-        //       }
-        //   });
-
+    // Update controls
+    // controls.update()
+    // camera.position.x += (mouseX - camera.position.x) * .05;
+    // camera.position.y += (-mouseY - camera.position.y) * .05;
+    // console.log("tick")
+    // camera.lookAt(scene.position);
+    // cp.innerHTML=camerapos.x.toString()
+   
+    // console.log(camerapos.x.toString())
+    
+    // Render
     renderer.render(scene, camera)
 
 
-    // cpx.innerHTML = "x: " + camerapos.x.toString()
-    // cpy.innerHTML = "y: " + camerapos.y.toString()
-    // cpz.innerHTML = "z: " + camerapos.z.toString()
-
+    cpx.innerHTML="x: " + camerapos.x.toString()
+    cpy.innerHTML="y: " + camerapos.y.toString()
+    cpz.innerHTML="z: " + camerapos.z.toString()
+    // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
-document.addEventListener('mousemove', onDocumentMouseMove);
-tick()
 
 
-function ScrollDownAnimations() {
-    animationScripts.forEach(function(a) {
-        // time = timea
-        if (scrollPercent >= a.start && scrollPercent < a.end) {
-            a.func();
-        }
-    });
-}
-
-function ScrollUpAnimations() {
-    animationScriptsup.forEach(function(a) {
-        if (scrollPercent >= a.start && scrollPercent < a.end) {
-            a.func();
-        }
-    });
-}
+// const c = document.createElement("span");
+// c.setAttribute('id','camerap');
 
 
-const gridHelper = new THREE.GridHelper(10, 10);
+
+
+const gridHelper = new THREE.GridHelper( 10, 10 );
 // scene.add( gridHelper );
-const axesHelper = new THREE.AxesHelper(5);
-axesHelper.setColors(0xff0000, 0xffff00, 0x0000ff)
-    // scene.add( axesHelper );
+const axesHelper = new THREE.AxesHelper( 5 );
+axesHelper.setColors (  0xff0000, 0xffff00, 0x0000ff)
+// scene.add( axesHelper );
+
+
+
+let scrollPercent = 0;
+document.body.onscroll = () => {
+    scrollPercent =
+        ((document.documentElement.scrollTop || document.body.scrollTop) /
+            ((document.documentElement.scrollHeight ||
+                document.body.scrollHeight) -
+                document.documentElement.clientHeight)) *
+        100
+    ;
+    scroll.innerHTML="scroll progress: " + scrollPercent.toFixed(2)
+}
+
+tick()
 
 function lerp(x, y, a) {
     return (1 - a) * x + a * y
 }
-
+// Used to fit the lerps to start and end at specific scrolling percentages
 function scalePercent(start, end) {
-    let reTurn = (scrollPercent - start) / (end - start)
-    reTurn = clamp(reTurn, 0, 1)
-    return reTurn
-}
-
-function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
-
-function onDocumentMouseMove(event) {
-    mouseX = (event.clientX - windowHalfX) * 4;
-    // mouseX = event.clientX
-    mouseY = (event.clientY - windowHalfY) * 4;
-    // mouseY = event.clientY
-    mouseOX = Math.abs(mouseX / 4) / windowHalfX
-    mouseOY = Math.abs(mouseY / 4) / windowHalfY
-        // if (mouseOX < 0.35) {
-        //     mouseOX = 0
-        // }
-    mouseOX = clamp(mouseOX, 0, 1)
-    mouseOY = clamp(mouseOY, 0, 1)
-}
-
-
-function isScrollingDown() {
-    // Get the current scroll position
-    var currentScrollY = window.scrollY;
-
-    // Wait for a short period of time to get the next scroll position
-    return new Promise(function(resolve, reject) {
-        setTimeout(function() {
-            // Get the next scroll position
-            var nextScrollY = window.scrollY;
-
-            // Calculate the difference between the current and next scroll positions
-            var scrollDiff = nextScrollY - currentScrollY;
-
-            // Determine if we're scrolling down by at least 50 pixels
-            if (scrollDiff > 0) {
-                // If the scroll difference is greater than 50, we're scrolling down
-                resolve(true);
-            } else if (scrollDiff < -0.08) {
-                // If the scroll difference is less than -50, we're scrolling up
-                resolve(false);
-            } else {
-                // If the scroll difference is within the threshold, we're not scrolling
-                resolve(null);
-            }
-        }, 100);
-    });
-}
-
-
-function getValue() {
-    let startTime = Date.now(); // get current time in milliseconds
-    let endTime = startTime + 1000; // 1 second later
-    let a = 0; // initial value of a
-
-    while (Date.now() < endTime) {
-        let elapsedTime = Date.now() - startTime; // time elapsed since start
-        a = elapsedTime / 1000; // calculate new value of a
-    }
-
-    setTimeout(function() {
-        return a;
-    }, 10);
-}
-
-function radiansToPi(radians) {
-    return radians / Math.PI;
-}
-
-function map(value, min1, max1, min2, max2) {
-    const range1 = max1 - min1;
-    const range2 = max2 - min2;
-    const valueScaled = (value - min1) / range1;
-    return min2 + (valueScaled * range2);
+    return (scrollPercent - start) / (end - start)
 }
