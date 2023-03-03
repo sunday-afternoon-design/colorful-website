@@ -22,6 +22,7 @@ let windowHalfY = window.innerHeight / 2;
 const stats = Stats()
 // document.body.appendChild(stats.dom)
 
+
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
