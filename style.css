@@ -3,10 +3,13 @@
     padding: 0;
 }
 
-html,
 body {
-    overflow: hidden;
+    overflow-x: hidden;
+    margin: 0px;
+    font-family: monospace;
+    color: white;
 }
+
 
 .webgl {
     position: fixed;
@@ -15,6 +18,7 @@ body {
     outline: none;
     z-index: 0;   
 }
+
 
 .camerapos{
  z-index: 1;   
