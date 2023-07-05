@@ -253,7 +253,7 @@ function clickrequest() {
                 } else {
                     orientationbtn.style.display = "none";
                     console.log("no3")
-                    // document.getElementById("restartindication").style.display = "block"
+                        // document.getElementById("restartindication").style.display = "block"
                 }
             }).catch(console.error);
         }
@@ -292,8 +292,8 @@ function orientationmove() {
 /* -------------------------------------------------------------------------- */
 const tick = () => {
     if (!isMobileDevice) {
-        camera.position.x += (-mouseX / 8500 - camera.position.x) * .07 + 0.35;
-        camera.position.y += (mouseY / 8500 - camera.position.y) * .1;
+        camera.position.x += (-mouseX / 6000 - camera.position.x) * .07 + 0.35;
+        camera.position.y += (mouseY / 6000 - camera.position.y) * .1;
     }
 
     renderer.render(scene, camera)
